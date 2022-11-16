@@ -2,15 +2,16 @@ from nuron import Nuron
 
 class Layer:
 
-    def __init__(self,noOfNurons:int):
+    def __init__(self, noOfNurons: int, inBoundWeightsVectors):
         self.noOfNurons = noOfNurons
         self.nurons = []
-        
-    def assignNurons(self,inWeightsList):
-        for index in range(0,self.noOfNurons):
-            self.nurons.append(Nuron(inWeightsList[index]))
+        self.inBoundWeightsVectors = inBoundWeightsVectors
 
-    def getOutput(self,inputVector):
+    def assignNurons(self):
+        for index in range(0, self.noOfNurons):
+            self.nurons.append(Nuron(self.inBoundWeightsVectors[index]))
+
+    def getOutput(self, inputVector):
         try:
             output = []
             for nuron in self.nurons:
@@ -18,4 +19,3 @@ class Layer:
             return output
         except:
             print("Failed to get output")
-    
