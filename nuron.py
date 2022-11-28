@@ -1,11 +1,10 @@
 import math
 import numpy as np
 
-lamda = 0.3
-
 
 class Nuron:
-    def __init__(self, inWeights):
+    def __init__(self, lamda, inWeights):
+        self.lamda = lamda
         self.inWeights = inWeights
         self.value = None
 
@@ -17,7 +16,10 @@ class Nuron:
         return self.value
 
     def sigmoid(self, x: float):
-        return 1 / (1 + math.exp(-lamda * x))
+        return 1 / (1 + math.exp(-self.lamda * x))
+
+    def getLocalGradient(self, error: int):
+        return (self.lamda * self.value * (1-self.value) * error)
 
     def getNuronVal(self):
         return self.value

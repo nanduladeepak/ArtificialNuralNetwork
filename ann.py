@@ -1,23 +1,4 @@
-import numpy as np
 from layer import Layer
-# import math
-# import random
-
-
-
-# layer1 = Layer(2)
-# layer2 = Layer(2)
-
-# layer1.assignNurons(randomWaightsArr)
-# layer2.assignNurons(randomWaightsArr)
-
-# layer1Output = layer1.getOutput(inputVector)
-# print(layer1Output)
-
-# layer2Output = layer2.getOutput(layer1Output)
-
-# print(layer2Output)
-
 
 class ANN:
     def __init__(self, noOfHiddenLayers: int, noOfNurons: int, noOfOutputs: int):
@@ -33,37 +14,56 @@ class ANN:
         self.localGradient = []
         self.deltaW = []
 
-    def setupAnn(self,inBoundWeightsVectors):
-        for index in range(0,self.noOfHiddenLayers-1):
-            self.layers.append(Layer(self.noOfNurons,inBoundWeightsVectors[index]))
+    def setupAnn(self, inBoundWeightsVectors):
+        for index in range(0, self.noOfHiddenLayers):
+            self.layers.append(
+                Layer(self.lamda, self.epsilon, self.noOfNurons, inBoundWeightsVectors[index]))
             self.layers[index].assignNurons()
-        self.layers.append(Layer(self.noOfOutputs,inBoundWeightsVectors[-1]))
+        self.layers.append(Layer(self.lamda, self.epsilon,
+                                 self.noOfOutputs, inBoundWeightsVectors[-1]))
         self.layers[-1].assignNurons()
 
-    def getPredOutput(self,inputVector):
+    def getPredOutput(self, inputVector):
         for layer in self.layers:
             inputVector = layer.getOutput(inputVector)
         return inputVector
 
-    # def trainAnn(self,inputVector, expectedOutput):
-    #     predictedoutput = self.getPredOutput(inputVector)
-    #     for index in range(len(self.layers),0,-1):
-    #         self.localGradient.insert(0,)
+    def trainAnn(self, inputVector, expectedOutput):
+        predictedoutput = self.getPredOutput(inputVector)
+        errors = []
+        for pred, exp in zip(predictedoutput, expectedOutput):
+            errors.append(exp - pred)
+        self.calculateLocalGradient(errors)
+        self.deltaW.insert(0, [])
+        for gradient, input in zip(self.localGradient[0], inputVector):
+            self.deltaW[0].append(self.epsilon*gradient*input)
 
+        # print(self.localGradient)
+        # print(self.deltaW)
+        for layer, deltaWvector in zip(self.layers, self.deltaW):
+            layer.updateWeights(deltaWvector)
+        
+        predictedoutput = self.getPredOutput(inputVector)
+        print(predictedoutput)
+        # self.localGradient.insert(0, self.layers[-1].getLocalGradients(errors))
+        # for index in range(self.noOfHiddenLayers, 0, -1):
+        #     errors = self.layers[index].getHiddenLayerError(
+        #         self.localGradient[0])
+        #     self.localGradient.insert(
+        #         0, self.layers[index].getLocalGradients(errors))
+        # print(self.localGradient)
 
+    def calculateLocalGradient(self, errors):
+        self.localGradient.insert(0, self.layers[-1].getLocalGradients(errors))
+        for index in range(self.noOfHiddenLayers, 0, -1):
+            errors = self.layers[index].getHiddenLayerError(
+                self.localGradient[0])
+            self.deltaW.insert(
+                0, self.layers[index].getDeltaW(self.localGradient[0]))
+            self.localGradient.insert(
+                0, self.layers[index].getLocalGradients(errors))
 
-
-
-# writh the ann as a class and take the ann structure for the constructor
-
-
-randomWaightsArr = np.random.random((2, 2))
-
-inputVector = [1, 0.5]
-
-expextedOutput = [1, 0.5]
-
-ann = ANN(1,2,2)
-
-ann.setupAnn([randomWaightsArr,randomWaightsArr])
-print(ann.getPredOutput(inputVector))
+    # def calculateDeltaW(self):
+    #     if (len(self.deltaW) == 0):
+    #         for layer in self.layers:
+    #             layer.getDeltaW()
