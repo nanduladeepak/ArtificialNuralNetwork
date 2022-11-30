@@ -2,6 +2,7 @@ from layer import Layer
 import math
 import numpy as np
 
+
 class ANN:
     def __init__(self, noOfHiddenLayers: int, noOfNurons: int, noOfOutputs: int):
         self.lamda = 0.3
@@ -56,7 +57,7 @@ class ANN:
         self.firstPass = False
         predictedoutput = self.getPredOutput(inputVector)
         # print(predictedoutput)
-        MSE = np.square(np.subtract(expectedOutput,predictedoutput)).mean() 
+        MSE = np.square(np.subtract(expectedOutput, predictedoutput)).mean()
         RMSE = math.sqrt(MSE)
         # print("Root Mean Square Error:\n")
         print(RMSE)
@@ -71,8 +72,8 @@ class ANN:
             #     self.localGradient[index]) + (0 if (self.deltaW[index] is None) else (self.alpha*self.deltaW[index]))
             deltaRes = self.layers[index].getDeltaW(
                 self.localGradient[index])
-            if(self.firstPass == False):
-                for j , (deltaVal,deltaTmOne) in enumerate(zip(deltaRes,self.deltaW[index])):
+            if (self.firstPass == False):
+                for j, (deltaVal, deltaTmOne) in enumerate(zip(deltaRes, self.deltaW[index])):
                     self.deltaW[index][j] = deltaVal+self.alpha*deltaTmOne
             else:
                 self.deltaW[index] = deltaRes
@@ -80,3 +81,13 @@ class ANN:
                 self.localGradient[index -
                                    1] = self.layers[index].getLocalGradients(errors)
             index -= 1
+
+    def getModel(self):
+        model = []
+        for layer in self.layers:
+            model.append(layer.getInBoundWeights())
+        return model
+
+    def setModel(self, model):
+        for layer, weights in zip(self.layers, model):
+            layer.updateInBoundWeights(weights)

@@ -36,8 +36,9 @@ class Layer:
         return deltaW
     
     def updateWeights(self,deltaWVector):
-        for index , (deltaW , weights) in enumerate(zip(deltaWVector,self.inBoundWeightsVectors)):
+        for index , (deltaW , weights,nuron) in enumerate(zip(deltaWVector,self.inBoundWeightsVectors,self.nurons)):
             self.inBoundWeightsVectors[index] = [x + deltaW for x in weights]
+            nuron.updateInWeights(self.inBoundWeightsVectors[index])
 
     def getOutput(self, inputVector):
         try:
@@ -47,3 +48,11 @@ class Layer:
             return output
         except:
             print("Failed to get output")
+
+    def getInBoundWeights(self):
+        return self.inBoundWeightsVectors
+
+    def updateInBoundWeights(self,storedWeights):
+        self.inBoundWeightsVectors = storedWeights
+        for weights , nuron in zip(self.inBoundWeightsVectors,self.nurons):
+            nuron.updateInWeights(weights)

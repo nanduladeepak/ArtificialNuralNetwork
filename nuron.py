@@ -23,3 +23,6 @@ class Nuron:
 
     def getNuronVal(self):
         return self.value
+
+    def updateInWeights(self,updatedInWeights):
+        self.inWeights = updatedInWeights
