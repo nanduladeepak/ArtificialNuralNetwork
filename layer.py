@@ -1,6 +1,5 @@
 from nuron import Nuron
 
-
 class Layer:
 
     def __init__(self, lamda, epsilon, noOfNurons: int, inBoundWeightsVectors):
@@ -37,10 +36,8 @@ class Layer:
         return deltaW
     
     def updateWeights(self,deltaWVector):
-        # print(self.inBoundWeightsVectors)
         for index , (deltaW , weights) in enumerate(zip(deltaWVector,self.inBoundWeightsVectors)):
             self.inBoundWeightsVectors[index] = [x + deltaW for x in weights]
-        # print(self.inBoundWeightsVectors)
 
     def getOutput(self, inputVector):
         try:

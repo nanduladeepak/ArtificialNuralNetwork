@@ -11,11 +11,9 @@ expextedOutput = [1, 0.5]
 ann = ANN(1, 2, 2)
 
 ann.setupAnn([randomWaightsArr, randomWaightsArr])
-# print(ann.getPredOutput(inputVector))
 
 for i in range(0,1000):
     ann.trainAnn(inputVector, expextedOutput)
 
 
-# ann.trainAnn(inputVector, expextedOutput)
 
