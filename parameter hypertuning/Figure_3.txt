@@ -1,0 +1,3 @@
+self.lamda = 0.3
+self.epsilon = 1
+self.alpha = 0.9

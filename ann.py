@@ -4,20 +4,30 @@ import numpy as np
 
 
 class ANN:
-    def __init__(self, noOfHiddenLayers: int, noOfNurons: int, noOfOutputs: int):
-        self.lamda = 0.3
-        self.epsilon = 0.6
-        self.alpha = 0.6
+    def __init__(self, noOfInputs: int, noOfNurons: int, noOfHiddenLayers: int, noOfOutputs: int):
+        self.lamda = 0.6
+        self.epsilon = 1
+        self.alpha = 0.9
 
         self.noOfHiddenLayers = noOfHiddenLayers
         self.noOfNurons = noOfNurons
         self.noOfOutputs = noOfOutputs
+        self.noOfInputs = noOfInputs
         self.layers = []
         self.localGradient = []
         self.deltaW = []
         self.firstPass = True
 
-    def setupAnn(self, inBoundWeightsVectors):
+    def setupAnn(self, inBoundWeightsVectors=None):
+        if inBoundWeightsVectors is None:
+            inBoundWeightsVectors = []
+            index = 0
+            while (index < self.noOfHiddenLayers):
+                inBoundWeightsVectors.append(np.random.random(
+                    (self.noOfNurons, self.noOfInputs if (index == 0) else self.noOfNurons)))
+                index += 1
+            inBoundWeightsVectors.append(
+                np.random.random((self.noOfOutputs, self.noOfNurons)))
         for index in range(0, self.noOfHiddenLayers):
             self.deltaW.append([])
             self.localGradient.append([])
@@ -60,7 +70,7 @@ class ANN:
         MSE = np.square(np.subtract(expectedOutput, predictedoutput)).mean()
         RMSE = math.sqrt(MSE)
         # print("Root Mean Square Error:\n")
-        print(RMSE)
+        return RMSE
 
     def calculateLocalGradient(self, errors):
         self.localGradient[-1] = self.layers[-1].getLocalGradients(errors)
@@ -85,7 +95,9 @@ class ANN:
     def getModel(self):
         model = []
         for layer in self.layers:
-            model.append(layer.getInBoundWeights())
+            # weights = layer.getInBoundWeights()
+            # model.append(weights.tolist() if type(weights) is np.ndarray else weights) 
+            model.append(layer.getInBoundWeights()) 
         return model
 
     def setModel(self, model):
