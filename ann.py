@@ -5,9 +5,9 @@ import numpy as np
 
 class ANN:
     def __init__(self, noOfInputs: int, noOfNurons: int, noOfHiddenLayers: int, noOfOutputs: int):
-        self.lamda = 0.6
-        self.epsilon = 1
-        self.alpha = 0.9
+        self.lamda = 0.01
+        self.epsilon = 0.1
+        self.alpha = 0.09
 
         self.noOfHiddenLayers = noOfHiddenLayers
         self.noOfNurons = noOfNurons
@@ -70,6 +70,12 @@ class ANN:
         MSE = np.square(np.subtract(expectedOutput, predictedoutput)).mean()
         RMSE = math.sqrt(MSE)
         # print("Root Mean Square Error:\n")
+        return RMSE
+
+    def getRsme(self,x,y):
+        y_pred = self.getPredOutput(x)
+        MSE = np.square(np.subtract(y, y_pred)).mean()
+        RMSE = math.sqrt(MSE)
         return RMSE
 
     def calculateLocalGradient(self, errors):

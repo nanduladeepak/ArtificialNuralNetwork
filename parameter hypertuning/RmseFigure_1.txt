@@ -1,0 +1,6 @@
+self.lamda = 0.6
+self.epsilon = 1
+self.alpha = 0.9
+
+
+1000 epochs

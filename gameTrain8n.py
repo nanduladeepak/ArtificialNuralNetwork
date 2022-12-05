@@ -6,6 +6,7 @@ from save_model import saveModelNpy , LoadModelNpy
 from time import sleep
 import matplotlib.pyplot as plt
 
+
 def remove_outlier(df_in, col_name):
     q1 = df_in[col_name].quantile(0.25)
     q3 = df_in[col_name].quantile(0.75)
@@ -19,8 +20,6 @@ df = pd.read_csv("ce889_dataCollection.csv", header=None)
 # print(df)
 df = remove_outlier(df,0)
 df = remove_outlier(df,1)
-df = remove_outlier(df,2)
-df = remove_outlier(df,3)
 X_raw = df.iloc[:, 0:2].copy()
 X_normalized=(X_raw-X_raw.mean())/X_raw.std()
 y = df.iloc[:, 2:4].copy()
@@ -29,13 +28,13 @@ y_normalized=(y-y.min())/(y.max()-y.min())
 # print(X_normalized)
 # print(y)
 
-ann = ANN(2,4, 1,2)
+ann = ANN(2,8, 1,2)
 
 
 X_np = X_normalized.to_numpy()
 y_np = y_normalized.to_numpy()
 
-savedModel = LoadModelNpy('savedModels/landerBot4n','1')
+savedModel = LoadModelNpy('savedModels/landerBot8n','1')
 
 ann.setupAnn(savedModel.tolist())
 
@@ -63,7 +62,7 @@ for X,Y in zip(X_np,y_np):
 print(ann.getPredOutput(X_np[1]))
 model = ann.getModel()
 # print(model)
-saveModelNpy(model,'savedModels/landerBot4n','1')
+saveModelNpy(model,'savedModels/landerBot8n','1')
 
 plt.plot(rsmeList)
 plt.show()

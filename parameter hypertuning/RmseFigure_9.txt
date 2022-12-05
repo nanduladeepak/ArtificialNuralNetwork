@@ -1,0 +1,7 @@
+self.lamda = 0.01
+self.epsilon = 0.1
+self.alpha = 0.09
+
+10 epochs
+
+removing outliers from input data
