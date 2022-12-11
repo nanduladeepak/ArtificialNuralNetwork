@@ -1,8 +1,9 @@
 from layer import Layer
 import math
 import numpy as np
+import copy
 
-
+# class for artificial nural network
 class ANN:
     def __init__(self, noOfInputs: int, noOfNurons: int, noOfHiddenLayers: int, noOfOutputs: int):
         self.lamda = 0.01
@@ -19,6 +20,7 @@ class ANN:
         self.deltaW = []
         self.inputVector = None
 
+    # set saved or random weights
     def setupAnn(self, inBoundWeightsVectors=None):
         if inBoundWeightsVectors is None:
             inBoundWeightsVectors = []
@@ -43,7 +45,6 @@ class ANN:
             self.deltaW[0].append([])
             for k in range(self.noOfInputs):
                 self.deltaW[0][i].append(None)
-        # fix delta w from below
         for i in range(self.noOfNurons):
             for j in range(0, self.noOfHiddenLayers):
                 self.localGradient[j].append(None)
@@ -67,7 +68,8 @@ class ANN:
 
         self.layers[-1].assignNurons()
 
-    def getPredOutput(self, inputVector,addBias=False):
+    # function to predict using ann
+    def getPredOutput(self, inputVector:list,addBias:bool=False):
         if(addBias):
             if(isinstance(inputVector, np.ndarray)):
                 inputVector = inputVector.tolist()
@@ -77,7 +79,8 @@ class ANN:
             inputVector = layer.getOutput(inputVector.copy())
         return inputVector
 
-    def trainAnn(self, inputVector, expectedOutput):
+    # function to train ann
+    def trainAnn(self, inputVector:list, expectedOutput:list):
         if(isinstance(inputVector, np.ndarray)):
             inputVector = inputVector.tolist()
         inputVector.append(1)
@@ -94,44 +97,44 @@ class ANN:
         RMSE = math.sqrt(MSE)
         return RMSE
 
-    def getRsme(self, x, y):
+    # function to calculate root mean square error
+    def getRsme(self, x:list, y:list):
         y_pred = self.getPredOutput(x,True)
         MSE = np.square(np.subtract(y, y_pred)).mean()
         RMSE = math.sqrt(MSE)
         return RMSE
 
-    def calculateLocalGradient(self, errors):
-        self.localGradient[-1] = self.layers[-1].getLocalGradients(errors)
-        self.deltaW[-1] = self.getDeltaW(
-            self.localGradient[-1], self.deltaW[-1],self.layers[-2].getNuronsOutputs())
+    # function to trigger the calculation of local gradient and delta-w
+    def calculateLocalGradient(self, errors:list):
+        self.localGradient[-1] = copy.deepcopy(self.layers[-1].getLocalGradients(errors))
+        self.deltaW[-1] = copy.deepcopy(self.getDeltaW(
+            self.localGradient[-1], self.deltaW[-1],self.layers[-2].getNuronsOutputs()))
         index = self.noOfHiddenLayers-1
         while (index >= 0):
-            errors = self.layers[index].getHiddenLayerError(
-                self.localGradient[index+1])
+            errors = copy.deepcopy(self.layers[index].getHiddenLayerError(
+                self.localGradient[index+1]))
 
-            self.localGradient[index] = self.layers[index].getLocalGradients(
-                errors)
+            self.localGradient[index] = copy.deepcopy(self.layers[index].getLocalGradients(
+                errors))
             if(index!=0):
-                self.deltaW[index] = self.getDeltaW(
-                    self.localGradient[index], self.deltaW[index],self.layers[index-1].getNuronsOutputs())
+                self.deltaW[index] = copy.deepcopy(self.getDeltaW(
+                    self.localGradient[index], self.deltaW[index],self.layers[index-1].getNuronsOutputs()))
             else:
-                self.deltaW[index] = self.getDeltaW(
-                    self.localGradient[index], self.deltaW[index],self.inputVector)
+                self.deltaW[index] = copy.deepcopy(self.getDeltaW(
+                    self.localGradient[index], self.deltaW[index],self.inputVector))
 
             index -= 1
 
-    def getDeltaW(self, gradients, deltaWs,nuronsOutputs):
+    # function to calculate delta-w
+    def getDeltaW(self, gradients:list, deltaWs:list,nuronsOutputs:list):
         for i, gradient in enumerate(gradients):
             for j, nuronVal in enumerate(nuronsOutputs):
                 deltaWs[i][j] = self.epsilon*gradient*nuronVal + (self.alpha*deltaWs[i][j] if deltaWs[i][j] is not None else 0)
         return deltaWs
 
+    # function to get weights of the ann
     def getModel(self):
         model = []
         for layer in self.layers:
             model.append(layer.getInBoundWeights())
         return model
-
-    def setModel(self, model):
-        for layer, weights in zip(self.layers, model):
-            layer.updateInBoundWeights(weights)
