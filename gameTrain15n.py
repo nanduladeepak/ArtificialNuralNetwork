@@ -23,21 +23,25 @@ df = pd.read_csv("ce889_dataCollection.csv", header=None)
 # df.drop(df[(df[0] <0 & df[3]>0 )].index, inplace = True)
 # print(df)
 # print(df.info())
-df.drop_duplicates()
-df = remove_outlier(df,2)
 # df_new = df
+df_new = df
 df_new = df.drop(df[(df[0]<0) & (df[3]>0)].index)
+df_new = df.drop(df[(df[0]>0) & (df[3]<0)].index)
+df_new = df_new.drop(df_new[(df_new[2]==0) & (df_new[3]==0)].index)
+df.drop_duplicates()
+df_new = remove_outlier(df_new,2)
+df = remove_outlier(df_new,0)
+df_new = remove_outlier(df_new,1)
+df_new = remove_outlier(df_new,3)
 # df_new = df.drop(df[(df[0]>0)].index)
+print(df_new)
+df_new.to_csv('clearedData.csv',sep=',', index=False)
+df_new[3],df_new[2]=df_new[2],df_new[3]
 df_new = df_new.reindex(np.random.permutation(df_new.index))
 # df_new.dropna(inplace= True)
-# print(df_new)
-# print(df_new.info())
-# df = remove_outlier(df,0)
-# df = remove_outlier(df,1)
-# df = remove_outlier(df,3)
 X_raw = df_new.iloc[:, 0:2].copy()
-# X_normalized=(X_raw-X_raw.mean())/X_raw.std()
-X_normalized=(X_raw-X_raw.mean())/X_raw.std()
+X_normalized=(X_raw-X_raw.min())/(X_raw.max()-X_raw.min())
+# X_normalized=np.log(X_raw.to_numpy())
 print(X_normalized)
 y = df_new.iloc[:, 2:4].copy()
 y_normalized=(y-y.min())/(y.max()-y.min())
@@ -46,14 +50,15 @@ print(y_normalized)
 # print(X_normalized)
 # print(y)
 
-ann = ANN(2,4, 1,2)
+ann = ANN(2,15, 1,2)
 
 
-X_np = X_raw.to_numpy()
+X_np = X_normalized.to_numpy()
 y_np = y_normalized.to_numpy()
+# y_np[0],y_np[1]=y_np[1],y_np[0]
 
-savedModel = LoadModelNpy('savedModels/landerBot4n','3')
-print(savedModel)
+savedModel = LoadModelNpy('savedModels/landerBot15n','3')
+# print(savedModel)
 
 ann.setupAnn(savedModel.tolist())
 
@@ -61,27 +66,27 @@ ann.setupAnn(savedModel.tolist())
 
 barSize = len(y_np)
 
-bar = progressbar.ProgressBar(maxval=barSize, \
+bar = progressbar.ProgressBar(maxval=50, \
     widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
 j = 0
 rsmeList = []
     # sleep(0.1)
+bar.start()
 for i in range(0,50):
-    # bar.start()
+    bar.update(j+1)
     for X,Y in zip(X_np,y_np):
-        # bar.update(j+1)
         ann.trainAnn(X, Y)
-    # j+=1
-    # bar.finish()
+    j+=1
+bar.finish()
     
 
 for X,Y in zip(X_np,y_np):
     rsmeList.append(ann.getRsme(X,Y))
 
-print(ann.getPredOutput(X_np[1],True))
+# print(ann.getPredOutput(X_np[1],True))
 model = ann.getModel()
-print(model)
-saveModelNpy(model,'savedModels/landerBot4n','3')
+# print(model)
+saveModelNpy(model,'savedModels/landerBot15n','3')
 
 plt.plot(rsmeList)
 plt.show()

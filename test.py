@@ -3,10 +3,21 @@ from save_model import saveModelNpy , LoadModelNpy
 from pandas_profiling import ProfileReport
 
 
+def remove_outlier(df_in, col_name):
+    q1 = df_in[col_name].quantile(0.25)
+    q3 = df_in[col_name].quantile(0.75)
+    iqr = q3-q1 #Interquartile range
+    fence_low  = q1-1.5*iqr
+    fence_high = q3+1.5*iqr
+    df_out = df_in.loc[(df_in[col_name] > fence_low) & (df_in[col_name] < fence_high)]
+    return df_out
+
 df = pd.read_csv("ce889_dataCollection.csv", header=None)
 df.rename({0:'input1',1:'input2',2:'output1',3:'output2'}, axis=1, inplace=True)
 print(df)
 # Generate a report
+df = remove_outlier(df,'output1')
+print(df)
 profile = ProfileReport(df)
 profile.to_file(output_file="test.pdf")
 

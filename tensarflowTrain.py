@@ -1,10 +1,11 @@
 from ann import ANN 
 import numpy as np
 import pandas as pd
-import progressbar
 from save_model import saveModelNpy , LoadModelNpy
 from time import sleep
 import matplotlib.pyplot as plt
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
 
 def remove_outlier(df_in, col_name):
     q1 = df_in[col_name].quantile(0.25)
@@ -26,11 +27,12 @@ df = pd.read_csv("ce889_dataCollection.csv", header=None)
 df.drop_duplicates()
 df = remove_outlier(df,2)
 # df_new = df
-df_new = df.drop(df[(df[0]<0) & (df[3]>0)].index)
+df_new = df
+# df_new = df.drop(df[(df[0]<0) & (df[3]>0)].index)
 # df_new = df.drop(df[(df[0]>0)].index)
+print(df_new)
 df_new = df_new.reindex(np.random.permutation(df_new.index))
 # df_new.dropna(inplace= True)
-# print(df_new)
 # print(df_new.info())
 # df = remove_outlier(df,0)
 # df = remove_outlier(df,1)
@@ -46,42 +48,25 @@ print(y_normalized)
 # print(X_normalized)
 # print(y)
 
-ann = ANN(2,4, 1,2)
+# ann = ANN(2,12, 1,2)
 
 
 X_np = X_raw.to_numpy()
 y_np = y_normalized.to_numpy()
+y_np[0],y_np[1]=y_np[1],y_np[0]
 
-savedModel = LoadModelNpy('savedModels/landerBot4n','3')
-print(savedModel)
+X_train, X_test, y_train, y_test = train_test_split(X_np, y_np, test_size=0.33, random_state=42)
 
-ann.setupAnn(savedModel.tolist())
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(units=15, input_shape = (2,)),
+    tf.keras.layers.Dense(units = 2)
+    ])
 
-# ann.setupAnn()
 
-barSize = len(y_np)
+model.compile(optimizer = 'adam', loss = 'mean_squared_error', metrics=[tf.keras.metrics.RootMeanSquaredError(),tf.keras.metrics.Accuracy()])
 
-bar = progressbar.ProgressBar(maxval=barSize, \
-    widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
-j = 0
-rsmeList = []
-    # sleep(0.1)
-for i in range(0,50):
-    # bar.start()
-    for X,Y in zip(X_np,y_np):
-        # bar.update(j+1)
-        ann.trainAnn(X, Y)
-    # j+=1
-    # bar.finish()
-    
+model.fit(X_np,y_np,epochs=50,validation_data=(X_test, y_test))
 
-for X,Y in zip(X_np,y_np):
-    rsmeList.append(ann.getRsme(X,Y))
 
-print(ann.getPredOutput(X_np[1],True))
-model = ann.getModel()
-print(model)
-saveModelNpy(model,'savedModels/landerBot4n','3')
+model.save('classifier_hd')
 
-plt.plot(rsmeList)
-plt.show()

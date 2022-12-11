@@ -35,7 +35,7 @@ X_np = X_normalized.to_numpy()
 y_np = y_normalized.to_numpy()
 
 savedModel = LoadModelNpy('savedModels/landerBot8n','1')
-
+print(savedModel)
 ann.setupAnn(savedModel.tolist())
 
 # ann.setupAnn()
@@ -61,7 +61,7 @@ for X,Y in zip(X_np,y_np):
 
 print(ann.getPredOutput(X_np[1]))
 model = ann.getModel()
-# print(model)
+print(model)
 saveModelNpy(model,'savedModels/landerBot8n','1')
 
 plt.plot(rsmeList)

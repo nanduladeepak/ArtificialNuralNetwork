@@ -2,8 +2,7 @@ from nuron import Nuron
 
 class Layer:
 
-    def __init__(self, lamda, epsilon, noOfNurons: int, inBoundWeightsVectors):
-        self.epsilon = epsilon
+    def __init__(self, lamda, noOfNurons: int, inBoundWeightsVectors):
         self.lamda = lamda
         self.noOfNurons = noOfNurons
         self.nurons = []
@@ -22,37 +21,32 @@ class Layer:
 
     def getHiddenLayerError(self, gradients):
         error = []
-        for grad, weights in zip(gradients, self.inBoundWeightsVectors):
-            sum = 0
-            for weight in weights:
-                sum += (grad * weight)
-            error.append(sum)
+        for weights in self.inBoundWeightsVectors:
+            error.append(sum([grad*weight for grad,weight in zip(gradients,weights)]))
         return error
 
-    def getDeltaW(self, gradients):
-        deltaW = []
-        for nuron, gradient in zip(self.nurons, gradients):
-            deltaW.append(self.epsilon*gradient*nuron.getNuronVal())
-        return deltaW
-    
-    def updateWeights(self,deltaWVector):
-        for index , (deltaW , weights,nuron) in enumerate(zip(deltaWVector,self.inBoundWeightsVectors,self.nurons)):
-            self.inBoundWeightsVectors[index] = [x + deltaW for x in weights]
+    def getNuronsOutputs(self):
+        outputs = []
+        for nuron in self.nurons:
+            outputs.append(nuron.getNuronVal())
+        return outputs
+
+    def updateWeights(self, deltaWVector):
+        for index, (deltaW, weights, nuron) in enumerate(zip(deltaWVector, self.inBoundWeightsVectors, self.nurons)):
+            self.inBoundWeightsVectors[index] = [
+                x + dw for x, dw in zip(weights, deltaW)]
             nuron.updateInWeights(self.inBoundWeightsVectors[index])
 
     def getOutput(self, inputVector):
-        try:
-            output = []
-            for nuron in self.nurons:
-                output.append(nuron.getOutputValue(inputVector))
-            return output
-        except:
-            print("Failed to get output")
+        output = []
+        for nuron in self.nurons:
+            output.append(nuron.getOutputValue(inputVector))
+        return output
 
     def getInBoundWeights(self):
         return self.inBoundWeightsVectors
 
-    def updateInBoundWeights(self,storedWeights):
+    def updateInBoundWeights(self, storedWeights):
         self.inBoundWeightsVectors = storedWeights
-        for weights , nuron in zip(self.inBoundWeightsVectors,self.nurons):
+        for weights, nuron in zip(self.inBoundWeightsVectors, self.nurons):
             nuron.updateInWeights(weights)

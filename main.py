@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 from save_model import saveModelNpy , LoadModelNpy
 
 # writh the ann as a class and take the ann structure for the constructor
-randomWaightsArr = np.random.random((2, 2))
+randomWaightsArr = np.random.uniform(low=0.1, high=1.0,size=(2, 2))
 
 inputVector = [1, 0.5]
 
 expextedOutput = [1, 0.5]
 
-ann = ANN(2, 2, 1, 2)
+ann = ANN(2, 4, 1, 2)
 
 ann.setupAnn()
 
@@ -19,7 +19,7 @@ ann.setupAnn()
 
 rsmeList = []
 
-for i in range(0,1000):
+for i in range(0,10000):
     rsmeList.append(ann.trainAnn(inputVector, expextedOutput))
 
 

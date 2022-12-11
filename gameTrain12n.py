@@ -26,11 +26,12 @@ df = pd.read_csv("ce889_dataCollection.csv", header=None)
 df.drop_duplicates()
 df = remove_outlier(df,2)
 # df_new = df
-df_new = df.drop(df[(df[0]<0) & (df[3]>0)].index)
+df_new = df
+# df_new = df.drop(df[(df[0]<0) & (df[3]>0)].index)
 # df_new = df.drop(df[(df[0]>0)].index)
+print(df_new)
 df_new = df_new.reindex(np.random.permutation(df_new.index))
 # df_new.dropna(inplace= True)
-# print(df_new)
 # print(df_new.info())
 # df = remove_outlier(df,0)
 # df = remove_outlier(df,1)
@@ -46,14 +47,15 @@ print(y_normalized)
 # print(X_normalized)
 # print(y)
 
-ann = ANN(2,4, 1,2)
+ann = ANN(2,12, 1,2)
 
 
 X_np = X_raw.to_numpy()
 y_np = y_normalized.to_numpy()
+y_np[0],y_np[1]=y_np[1],y_np[0]
 
-savedModel = LoadModelNpy('savedModels/landerBot4n','3')
-print(savedModel)
+savedModel = LoadModelNpy('savedModels/landerBot12n','2')
+# print(savedModel)
 
 ann.setupAnn(savedModel.tolist())
 
@@ -61,27 +63,27 @@ ann.setupAnn(savedModel.tolist())
 
 barSize = len(y_np)
 
-bar = progressbar.ProgressBar(maxval=barSize, \
+bar = progressbar.ProgressBar(maxval=50, \
     widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
 j = 0
 rsmeList = []
     # sleep(0.1)
+bar.start()
 for i in range(0,50):
-    # bar.start()
+    bar.update(j+1)
     for X,Y in zip(X_np,y_np):
-        # bar.update(j+1)
         ann.trainAnn(X, Y)
-    # j+=1
-    # bar.finish()
+    j+=1
+bar.finish()
     
 
 for X,Y in zip(X_np,y_np):
     rsmeList.append(ann.getRsme(X,Y))
 
-print(ann.getPredOutput(X_np[1],True))
+# print(ann.getPredOutput(X_np[1],True))
 model = ann.getModel()
-print(model)
-saveModelNpy(model,'savedModels/landerBot4n','3')
+# print(model)
+saveModelNpy(model,'savedModels/landerBot12n','2')
 
 plt.plot(rsmeList)
 plt.show()

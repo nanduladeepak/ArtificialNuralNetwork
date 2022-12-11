@@ -12,7 +12,7 @@ class Nuron:
         return self.inWeights
 
     def getOutputValue(self, nuronValues):
-        self.value = self.sigmoid(np.dot(nuronValues, self.inWeights))
+        self.value = self.sigmoid(np.dot(nuronValues.copy(), self.inWeights.copy()))
         return self.value
 
     def sigmoid(self, x: float):
